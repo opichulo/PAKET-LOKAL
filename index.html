@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PAKET LOKAL
+    HERLANG - KAJANG - BONTOTIRO - WhatsApp Integration</title>
+    <meta name="description" content="Sistem manajemen paket lokal dengan integrasi WhatsApp untuk notifikasi otomatis">
+    <meta name="keywords" content="paket lokal, kurir, ekspedisi, whatsapp, sistem pengiriman">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📦</text></svg>">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+            animation: slideIn 0.6s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            background: linear-gradient(135deg, #25D366, #128C7E);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="40" r="3" fill="rgba(255,255,255,0.1)"/><circle cx="40" cy="80" r="1" fill="rgba(255,255,255,0.1)"/></svg>');
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .form-section, .orders-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(37, 211, 102, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .form-section:hover, .orders-section:hover {
+            transform: translateY(-5px);
+        }
+
+        .section-header {
+            color: #128C7E;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #25D366;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(37, 211, 102, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #25D366, #128C7E);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(37, 211, 102, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .order-item {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid #25D366;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .order-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent 48%, rgba(37, 211, 102, 0.1) 50%, transparent 52%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .order-item:hover::before {
+            opacity: 1;
+        }
+
+        .order-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .order-id {
+            font-weight: bold;
+            color: #128C7E;
+            font-size: 1.1em;
+        }
+
+        .status {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .status.pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status.pickup {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status.delivered {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .order-details {
+            color: #666;
+            line-height: 1.6;
+            position: relative;
+            z-index: 1;
+        }
+
+        .whatsapp-section {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, #25D366, #128C7E);
+            color: white;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .whatsapp-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(255,255,255,0.1) 10px,
+                rgba(255,255,255,0.1) 20px
+            );
+            animation: move 20s linear infinite;
+        }
+
+        @keyframes move {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        .whatsapp-section h3 {
+            position: relative;
+            z-index: 1;
+            margin-bottom: 10px;
+        }
+
+        .whatsapp-section p {
+            position: relative;
+            z-index: 1;
+            margin-bottom: 20px;
+        }
+
+        .wa-btn {
+            background: white;
+            color: #25D366;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .wa-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(255, 255, 255, 0.3);
+            background: #f8f9fa;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            position: relative;
+            z-index: 1;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: scale(1.05);
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #25D366;
+        }
+
+        .stat-label {
+            opacity: 0.9;
+            font-size: 0.9em;
+        }
+
+        .loading {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loading.show {
+            display: flex;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #25D366;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #25D366;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+
+            .wa-btn {
+                display: block;
+                margin: 10px auto;
+                width: 80%;
+                max-width: 300px;
+            }
+
+            .stats {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            border-top: 1px solid #eee;
+            margin-top: 20px;
+        }
+
+        .footer a {
+            color: #25D366;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <div class="container">
+        <div class="header">
+            <h1>📦 Sistem Paket Lokal</h1>
+            <p>Kelola pengiriman paket dengan mudah melalui WhatsApp</p>
+        </div>
+
+        <div class="main-content">
+            <div class="form-section">
+                <div class="section-header">
+                    <span>📝</span>
+                    <span>Buat Pesanan Baru</span>
+                </div>
+                
+                <form id="orderForm">
+                    <div class="form-group">
+                        <label for="senderName">Nama Pengirim *</label>
+                        <input type="text" id="senderName" required placeholder="Masukkan nama pengirim">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="senderPhone">No. HP Pengirim *</label>
+                        <input type="tel" id="senderPhone" required placeholder="08123456789">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="recipientName">Nama Penerima *</label>
+                        <input type="text" id="recipientName" required placeholder="Masukkan nama penerima">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="recipientPhone">No. HP Penerima *</label>
+                        <input type="tel" id="recipientPhone" required placeholder="08123456789">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="pickupAddress">Alamat Penjemputan *</label>
+                        <textarea id="pickupAddress" rows="3" required placeholder="Masukkan alamat lengkap untuk penjemputan"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="deliveryAddress">Alamat Tujuan *</label>
+                        <textarea id="deliveryAddress" rows="3" required placeholder="Masukkan alamat lengkap tujuan"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="packageType">Jenis Paket *</label>
+                        <select id="packageType" required>
+                            <option value="">Pilih Jenis Paket</option>
+                            <option value="dokumen">📄 Dokumen</option>
+                            <option value="pakaian">👕 Pakaian</option>
+                            <option value="makanan">🍕 Makanan</option>
+                            <option value="elektronik">📱 Elektronik</option>
+                            <option value="obat">💊 Obat-obatan</option>
+                            <option value="lainnya">📦 Lainnya</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="notes">Catatan Khusus</label>
+                        <textarea id="notes" rows="2" placeholder="Catatan tambahan (opsional)"></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn">
+                        📦 Buat Pesanan
+                    </button>
+                </form>
+            </div>
+
+            <div class="orders-section">
+                <div class="section-header">
+                    <span>📋</span>
+                    <span>Daftar Pesanan</span>
+                </div>
+                
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalOrders">0</div>
+                        <div class="stat-label">Total Pesanan</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="pendingOrders">0</div>
+                        <div class="stat-label">Menunggu</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="todayOrders">0</div>
+                        <div class="stat-label">Hari Ini</div>
+                    </div>
+                </div>
+                
+                <div id="ordersList">
+                    <div style="text-align: center; color: #666; padding: 20px;">
+                        <div style="font-size: 3em; margin-bottom: 10px;">📦</div>
+                        <div>Belum ada pesanan</div>
+                        <div style="font-size: 0.9em; margin-top: 5px;">Buat pesanan pertama Anda!</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="whatsapp-section">
+                <h3>🚀 Integrasi WhatsApp</h3>
+                <p>Kirim notifikasi pesanan langsung ke WhatsApp customer dan driver</p>
+                
+                <div style="margin: 20px 0;">
+                    <button class="wa-btn" onclick="sendToCustomer()">
+                        📱 Kirim ke Customer
+                    </button>
+                    <button class="wa-btn" onclick="sendToDriver()">
+                        🚚 Kirim ke Driver
+                    </button>
+                </div>
+                
+                <div style="font-size: 0.9em; opacity: 0.8; margin-top: 15px;">
+                    💡 Tip: Pesanan akan otomatis dikirim ke customer setelah dibuat
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2024 Sistem Paket Lokal | Dibuat dengan ❤️ untuk kemudahan bisnis UMKM</p>
+            <p><small>Sistem ini terintegrasi dengan WhatsApp untuk notifikasi real-time</small></p>
+        </div>
+    </div>
+
+    <script>
+        let orders = JSON.parse(localStorage.getItem('orders') || '[]');
+        let orderCounter = parseInt(localStorage.getItem('orderCounter') || '1000');
+
+        function saveToStorage() {
+            try {
+                localStorage.setItem('orders', JSON.stringify(orders));
+                localStorage.setItem('orderCounter', orderCounter.toString());
+            } catch (e) {
+                console.warn('Storage not available, using memory only');
+            }
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.background = type === 'success' ? '#25D366' : '#dc3545';
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        function showLoading(show = true) {
+            const loading = document.getElementById('loading');
+            if (show) {
+                loading.classList.add('show');
+            } else {
+                loading.classList.remove('show');
+            }
+        }
+
+        function generateOrderId() {
+            return 'PKT' + (++orderCounter);
+        }
+
+        function formatPhoneNumber(phone) {
+            // Remove all non-numeric characters
+            phone = phone.replace(/\D/g, '');
+            
+            // Add country code if not present
+            if (phone.startsWith('0')) {
+                phone = '62' + phone.substring(1);
+            } els
